@@ -23,7 +23,6 @@ async function handleSearch(event) {
         const wordData = await fetchWordData(word);
         showResults();
         displayWordData(wordData);
-        console.log(wordData);
     } catch (error) {
         showResults();
         displayError(error.message);
@@ -32,7 +31,7 @@ async function handleSearch(event) {
 }
 
 function getInputValue() {
-    return wordInput.value;
+    return wordInput.value.trim();
 }
 
 function validateInput(word) {
@@ -67,13 +66,14 @@ async function fetchWordData(word) {
     const data = await response.json();
     return data;
 }
-//displays word with def,syn, and phonetics
+//renders fetched word data
 function displayWordData(wordData) {
     const entry = wordData[0];
 
     renderWordTitle(entry);
     renderPhonetics(entry.phonetics);
     renderDefinitions(entry.meanings);
+    renderSynonyms(entry.meanings);
 }
 //word entry 
 function renderWordTitle(entry) {
@@ -127,4 +127,36 @@ function renderDefinitions(meanings) {
 
         resultsDiv.appendChild(definitionsList);
     });
+}
+//synonyms
+function renderSynonyms(meanings) {
+    const synonyms = [];
+
+    meanings.forEach((meaning) => {
+        meaning.definitions.forEach((definitionObj) => {
+            if (Array.isArray(definitionObj.synonyms) && definitionObj.synonyms.length > 0) {
+                definitionObj.synonyms.forEach((synonym) => {
+                    if (!synonyms.includes(synonym)) {
+                        synonyms.push(synonym);
+                    }
+                });
+            }
+        });
+    });
+
+    if (synonyms.length > 0) {
+        const synonymsHeading = document.createElement("h3");
+        synonymsHeading.textContent = "Synonyms";
+        resultsDiv.appendChild(synonymsHeading);
+
+        const synonymsList = document.createElement("ul");
+
+        synonyms.forEach((synonym) => {
+            const synonymItem = document.createElement("li");
+            synonymItem.textContent = synonym;
+            synonymsList.appendChild(synonymItem);
+        });
+
+        resultsDiv.appendChild(synonymsList);
+    }
 }
