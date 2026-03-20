@@ -18,10 +18,17 @@ async function handleSearch(event) {
         displayError("Please enter a valid word.");
         return;
     }
-    const wordData = await fetchWordData(word);
-    showResults();
-    displayWordData(wordData);
-    console.log(wordData);
+    
+    try {
+        const wordData = await fetchWordData(word);
+        showResults();
+        displayWordData(wordData);
+        console.log(wordData);
+    } catch (error) {
+        showResults();
+        displayError(error.message);
+        console.error(error);
+    }
 }
 
 function getInputValue() {
@@ -52,48 +59,72 @@ function displayError(message) {
 async function fetchWordData(word) {
     const url = `${DICTIONARY_API_URL}${word}`;
     const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error("Word not found. Please try another search.");
+    }
+
     const data = await response.json();
     return data;
 }
-
-function extractWordData(wordData) {
-
-}
-
+//displays word with def,syn, and phonetics
 function displayWordData(wordData) {
-//word display
     const entry = wordData[0];
-    const h2 = document.createElement("h2");
-    h2.textContent = entry.word;
-    resultsDiv.appendChild(h2);
-//checks if phonetic exists if so creates and appends "p"  
-    entry.phonetics.forEach((phonetic) => {
-        const phoneticContainer = document.createElement("div")
+
+    renderWordTitle(entry);
+    renderPhonetics(entry.phonetics);
+    renderDefinitions(entry.meanings);
+}
+//word entry 
+function renderWordTitle(entry) {
+    const wordHeading = document.createElement("h2");
+    wordHeading.textContent = entry.word;
+    resultsDiv.appendChild(wordHeading);
+}
+//phonetics
+function renderPhonetics(phonetics) {
+    phonetics.forEach((phonetic) => {
+        const phoneticContainer = document.createElement("div");
 
         if (phonetic.text) {
-            const phoneticText = document.createElement("p")
+            const phoneticText = document.createElement("p");
             phoneticText.textContent = phonetic.text;
             phoneticContainer.appendChild(phoneticText);
         }
 
         if (phonetic.audio) {
             const audioPlayer = document.createElement("audio");
-        }
-    })
-//definitions
-    entry.meanings.forEach((meaning) => {
-        const h3 = document.createElement("h3");
-        h3.textContent = meaning.partOfSpeech;
-        resultsDiv.appendChild(h3);
+            let audioUrl = phonetic.audio;
 
-        const ul = document.createElement("ul");
+            if (audioUrl.startsWith("//")) {
+                audioUrl = `https:${audioUrl}`;
+            }
+
+            audioPlayer.controls = true;
+            audioPlayer.src = audioUrl;
+            phoneticContainer.appendChild(audioPlayer);
+        }
+
+        if (phoneticContainer.children.length > 0) {
+            resultsDiv.appendChild(phoneticContainer);
+        }
+    });
+}
+//definition
+function renderDefinitions(meanings) {
+    meanings.forEach((meaning) => {
+        const partOfSpeechHeading = document.createElement("h3");
+        partOfSpeechHeading.textContent = meaning.partOfSpeech;
+        resultsDiv.appendChild(partOfSpeechHeading);
+
+        const definitionsList = document.createElement("ul");
 
         meaning.definitions.forEach((definitionObj) => {
-            const li = document.createElement("li");
-            li.textContent = definitionObj.definition;
-            ul.appendChild(li);
-        })
+            const definitionItem = document.createElement("li");
+            definitionItem.textContent = definitionObj.definition;
+            definitionsList.appendChild(definitionItem);
+        });
 
-        resultsDiv.appendChild(ul);
-    })
+        resultsDiv.appendChild(definitionsList);
+    });
 }
