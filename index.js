@@ -35,12 +35,7 @@ function getInputValue() {
 }
 
 function validateInput(word) {
-    
-    if (word.trim().length === 0) {
-        return false;
-    } 
-    
-    return true;
+    return word.length > 0;
 }
 
 function clearResults() {
@@ -84,31 +79,61 @@ function renderWordTitle(entry) {
 //phonetics
 function renderPhonetics(phonetics) {
     phonetics.forEach((phonetic) => {
-        const phoneticContainer = document.createElement("div");
+        const phoneticBlock = createPhoneticBlock(phonetic);
 
-        if (phonetic.text) {
-            const phoneticText = document.createElement("p");
-            phoneticText.textContent = phonetic.text;
-            phoneticContainer.appendChild(phoneticText);
-        }
-
-        if (phonetic.audio) {
-            const audioPlayer = document.createElement("audio");
-            let audioUrl = phonetic.audio;
-
-            if (audioUrl.startsWith("//")) {
-                audioUrl = `https:${audioUrl}`;
-            }
-
-            audioPlayer.controls = true;
-            audioPlayer.src = audioUrl;
-            phoneticContainer.appendChild(audioPlayer);
-        }
-
-        if (phoneticContainer.children.length > 0) {
-            resultsDiv.appendChild(phoneticContainer);
+        if (phoneticBlock) {
+            resultsDiv.appendChild(phoneticBlock);
         }
     });
+}
+
+function createPhoneticBlock(phonetic) {
+    const phoneticContainer = document.createElement("div");
+    phoneticContainer.classList.add("phonetic-row");
+
+    let hasContent = false;
+
+    if (phonetic.audio) {
+        let audioUrl = phonetic.audio;
+
+        if (audioUrl.startsWith("//")) {
+            audioUrl = `https:${audioUrl}`;
+        }
+
+        const audioPlayer = document.createElement("audio");
+        audioPlayer.src = audioUrl;
+        audioPlayer.style.display = "none";
+
+        const playButton = createPlayButton(audioPlayer);
+        playButton.classList.add("play-button");
+
+        phoneticContainer.appendChild(playButton);
+        phoneticContainer.appendChild(audioPlayer);
+        hasContent = true;
+    }
+
+    if (phonetic.text) {
+        const phoneticText = document.createElement("p");
+        phoneticText.textContent = phonetic.text;
+        phoneticText.classList.add("phonetic-text");
+        phoneticContainer.appendChild(phoneticText);
+        hasContent = true;
+    }
+
+    return hasContent ? phoneticContainer : null;
+}
+
+function createPlayButton(audioPlayer) {
+    const playButton = document.createElement("button");
+    playButton.textContent = "▶";
+    playButton.type = "button";
+
+    playButton.addEventListener("click", () => {
+        audioPlayer.currentTime = 0;
+        audioPlayer.play();
+    });
+
+    return playButton;
 }
 //definition
 function renderDefinitions(meanings) {
