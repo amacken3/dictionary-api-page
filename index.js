@@ -18,8 +18,10 @@ async function handleSearch(event) {
         displayError("Please enter a valid word.");
         return;
     }
-    console.log(word);
-
+    const wordData = await fetchWordData(word);
+    showResults();
+    displayWordData(wordData);
+    console.log(wordData);
 }
 
 function getInputValue() {
@@ -43,16 +45,15 @@ function showResults() {
     resultsSection.style.display = "block";
 }
 
-function hideResults() {
-
-}
-
 function displayError(message) {
     resultsDiv.textContent = message;
 }
 
-function fetchWordData(word) {
-
+async function fetchWordData(word) {
+    const url = `${DICTIONARY_API_URL}${word}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
 }
 
 function extractWordData(wordData) {
@@ -60,5 +61,39 @@ function extractWordData(wordData) {
 }
 
 function displayWordData(wordData) {
+//word display
+    const entry = wordData[0];
+    const h2 = document.createElement("h2");
+    h2.textContent = entry.word;
+    resultsDiv.appendChild(h2);
+//checks if phonetic exists if so creates and appends "p"  
+    entry.phonetics.forEach((phonetic) => {
+        const phoneticContainer = document.createElement("div")
 
+        if (phonetic.text) {
+            const phoneticText = document.createElement("p")
+            phoneticText.textContent = phonetic.text;
+            phoneticContainer.appendChild(phoneticText);
+        }
+
+        if (phonetic.audio) {
+            const audioPlayer = document.createElement("audio");
+        }
+    })
+//definitions
+    entry.meanings.forEach((meaning) => {
+        const h3 = document.createElement("h3");
+        h3.textContent = meaning.partOfSpeech;
+        resultsDiv.appendChild(h3);
+
+        const ul = document.createElement("ul");
+
+        meaning.definitions.forEach((definitionObj) => {
+            const li = document.createElement("li");
+            li.textContent = definitionObj.definition;
+            ul.appendChild(li);
+        })
+
+        resultsDiv.appendChild(ul);
+    })
 }
