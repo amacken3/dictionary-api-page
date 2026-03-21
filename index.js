@@ -10,6 +10,7 @@ async function handleSearch(event) {
     event.preventDefault();
 
     const word = getInputValue();
+    wordInput.value = "";
     const isValidInput = validateInput(word);
     clearResults();
 
