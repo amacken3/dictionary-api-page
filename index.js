@@ -10,7 +10,6 @@ async function handleSearch(event) {
     event.preventDefault();
 
     const word = getInputValue();
-    wordInput.value = "";
     const isValidInput = validateInput(word);
     clearResults();
 
@@ -24,6 +23,7 @@ async function handleSearch(event) {
         const wordData = await fetchWordData(word);
         showResults();
         displayWordData(wordData);
+        wordInput.value = "";
     } catch (error) {
         showResults();
         displayError(error.message);
