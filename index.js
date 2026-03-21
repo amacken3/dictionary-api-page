@@ -37,7 +37,7 @@ function getInputValue() {
 function validateInput(word) {
     return word.length > 0;
 }
-
+//results
 function clearResults() {
     resultsDiv.textContent = "";
 }
@@ -45,9 +45,12 @@ function clearResults() {
 function showResults() {
     resultsSection.style.display = "block";
 }
-
+//error message display
 function displayError(message) {
-    resultsDiv.textContent = message;
+    const errorText = document.createElement("p");
+    errorText.classList.add("error-message", "fade-in");
+    errorText.textContent = message;
+    resultsDiv.appendChild(errorText);
 }
 
 async function fetchWordData(word) {
@@ -73,6 +76,7 @@ function displayWordData(wordData) {
 //word entry 
 function renderWordTitle(entry) {
     const wordHeading = document.createElement("h2");
+    wordHeading.classList.add("fade-in");
     wordHeading.textContent = entry.word;
     resultsDiv.appendChild(wordHeading);
 }
@@ -89,7 +93,7 @@ function renderPhonetics(phonetics) {
 
 function createPhoneticBlock(phonetic) {
     const phoneticContainer = document.createElement("div");
-    phoneticContainer.classList.add("phonetic-row");
+    phoneticContainer.classList.add("phonetic-row", "fade-in");
 
     let hasContent = false;
 
@@ -139,14 +143,17 @@ function createPlayButton(audioPlayer) {
 function renderDefinitions(meanings) {
     meanings.forEach((meaning) => {
         const partOfSpeechHeading = document.createElement("h3");
+        partOfSpeechHeading.classList.add("part-of-speech-heading", "fade-in")
         partOfSpeechHeading.textContent = meaning.partOfSpeech;
         resultsDiv.appendChild(partOfSpeechHeading);
 
         const definitionsList = document.createElement("ul");
+        definitionsList.classList.add("definitions-list");
 
         meaning.definitions.forEach((definitionObj) => {
             const definitionItem = document.createElement("li");
             definitionItem.textContent = definitionObj.definition;
+            definitionItem.classList.add("definition-list-item", "fade-in");
             definitionsList.appendChild(definitionItem);
         });
 
@@ -172,12 +179,15 @@ function renderSynonyms(meanings) {
     if (synonyms.length > 0) {
         const synonymsHeading = document.createElement("h3");
         synonymsHeading.textContent = "Synonyms";
+        synonymsHeading.classList.add("synonyms-heading", "fade-in");
         resultsDiv.appendChild(synonymsHeading);
 
         const synonymsList = document.createElement("ul");
+        synonymsList.classList.add("synonyms-list", "fade-in")
 
         synonyms.forEach((synonym) => {
             const synonymItem = document.createElement("li");
+            synonymItem.classList.add("synonym-item", "fade-in");
             synonymItem.textContent = synonym;
             synonymsList.appendChild(synonymItem);
         });
