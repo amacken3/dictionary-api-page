@@ -183,7 +183,7 @@ function renderSynonyms(meanings) {
         resultsDiv.appendChild(synonymsHeading);
 
         const synonymsList = document.createElement("ul");
-        synonymsList.classList.add("synonyms-list", "fade-in")
+        synonymsList.classList.add("synonyms-list")
 
         synonyms.forEach((synonym) => {
             const synonymItem = document.createElement("li");
